@@ -1,10 +1,9 @@
 extends Node
 
+const DummyAdaptor = preload("res://addons/godot-rollback-netcode/DummyNetworkAdaptor.gd")
 
 onready var ip_field = $CanvasLayer/ConnectionPanel/GridContainer/IPLineEdit
 onready var port_field = $CanvasLayer/ConnectionPanel/GridContainer/PortLineEdit
-#onready var server_button = $CanvasLayer/ConnectionPanel/GridContainer/ServerButton
-#onready var client_button = $CanvasLayer/ConnectionPanel/GridContainer/ClientButton
 onready var message_label = $CanvasLayer/MessageLabel
 onready var connection_panel = $CanvasLayer/ConnectionPanel
 onready var sync_lost_label = $CanvasLayer/LostSyncLabel
@@ -23,6 +22,7 @@ func _ready():
 	SyncManager.connect("sync_error", self, "_on_SyncManager_sync_error")
 
 func _on_ServerButton_pressed():
+	_set_default_network_adaptor()
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_server(int(port_field.text))
 	get_tree().network_peer = peer
@@ -30,6 +30,7 @@ func _on_ServerButton_pressed():
 	message_label.text = "Listening..."
 
 func _on_ClientButton_pressed():
+	_set_default_network_adaptor()
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_client(ip_field.text, int(port_field.text))
 	get_tree().network_peer = peer
@@ -50,16 +51,15 @@ func _on_network_peer_connected(peer_id: int ):
 	message_label.text = "Connected!"
 	SyncManager.add_peer(peer_id)
 	
-	$Spatial/ServerPlayer.set_network_master(1)
-	if(get_tree().is_network_server()):
-		$Spatial/ClientPlayer.set_network_master(peer_id)
+	$World/ServerPlayer.set_network_master(1)
+	if(SyncManager.network_adaptor.is_network_host()):
+		$World/ClientPlayer.set_network_master(peer_id)
 	else:
-		$Spatial/ClientPlayer.set_network_master(get_tree().get_network_unique_id())
+		$World/ClientPlayer.set_network_master(SyncManager.network_adaptor.get_network_unique_id())
 	
-	if(get_tree().is_network_server()):
+	if(SyncManager.network_adaptor.is_network_host()):
 		message_label.text = "Starting..."
-		yield(get_tree().create_timer(2.0), "timeout")
-		SyncManager.start()
+		$StartTimer.start()
 
 
 func _on_network_peer_disconnected(peer_id: int):
@@ -74,8 +74,15 @@ func _on_SyncManager_sync_started():
 	message_label.text = "Started!"
 	var time = OS.get_datetime()
 	var file_directory = "./logs/log_peer_"
-	file_directory += "server_" if get_tree().is_network_server() else "client_"
-	file_directory += String(time["year"]) + String(time["month"]) + String(time["day"]) + "_" + String(time["hour"]) + "-" + String(time["minute"]) + "-" + String(time["second"])
+	file_directory += "%0000d%00d%00d-%00d_%00d_%00d" % [
+		time["year"],
+		time["month"],
+		time["day"],
+		time["hour"],
+		time["minute"],
+		time["second"]	]
+	file_directory += "_server" if SyncManager.network_adaptor.is_network_host() else "_client"
+	
 	file_directory += ".log"
 	if generate_logs:
 		SyncManager.start_logging(file_directory)
@@ -102,5 +109,16 @@ func _on_SyncManager_sync_error(msg):
 		peer.close_connection()
 		
 	SyncManager.clear_peers()
-	
 
+
+func _on_StartTimer_timeout():
+	SyncManager.start()
+
+
+func _on_LocalButton_pressed():
+	connection_panel.visible = false
+	SyncManager.set_network_adaptor(DummyAdaptor.new())
+	SyncManager.start()
+
+func _set_default_network_adaptor():
+	SyncManager.set_network_adaptor(SyncManager._create_class_from_project_settings('network/rollback/classes/network_adaptor', SyncManager.DEFAULT_NETWORK_ADAPTOR_PATH))

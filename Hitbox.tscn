@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Hitbox.gd" type="Script" id=1]
+[ext_resource path="res://CustomNetworkNodes/PreprocessNetworkTimer.gd" type="Script" id=2]
+[ext_resource path="res://box_graph.png" type="Texture" id=3]
+
+[sub_resource type="SGRectangleShape2D" id=1]
+extents_x = 0
+extents_y = 0
+
+[node name="Hitbox" type="SGArea2D" groups=["network_sync"]]
+script = ExtResource( 1 )
+elevation_offset = 1.0
+
+[node name="SGCollisionShape2D" type="SGCollisionShape2D" parent="."]
+shape = SubResource( 1 )
+
+[node name="HitboxDespawnTimer" type="Node" parent="."]
+script = ExtResource( 2 )
+
+[node name="Unlinker" type="Node" parent="."]
+
+[node name="HitboxVisual" type="NinePatchRect" parent="Unlinker"]
+modulate = Color( 1, 0, 0.960938, 0.6 )
+margin_left = -10.0
+margin_top = -10.0
+margin_right = 10.0
+margin_bottom = 10.0
+texture = ExtResource( 3 )
+region_rect = Rect2( 0, 0, 15, 15 )
+patch_margin_left = 1
+patch_margin_top = 1
+patch_margin_right = 1
+patch_margin_bottom = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="timeout" from="HitboxDespawnTimer" to="." method="_on_HitboxDespawnTimer_timeout"]

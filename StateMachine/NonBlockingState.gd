@@ -6,20 +6,12 @@ enum CollisionFlags{
 	ATTACK_COLLISION
 }
 
-func get_has_collision() -> int:
-#	get_owner().kinematicBody.sync_to_physics_engine()
-#	var nodes = get_tree().get_nodes_in_group("AttackCollision")
-#	
-#	for sNode in nodes:
-#		if not (sNode is SGArea2D):
-#			assert(sNode.get_name() + " is not of type SGArea2D")
-#			continue
-#		var area:SGArea2D = sNode as SGArea2D
-#		var bodies = area.get_overlapping_bodies(false)
-#		for body in bodies:
-#			if not(body is SGKinematicBody2D):
-#				continue
-#			if (body == get_owner().kinematicBody):
-#				return CollisionFlags.ATTACK_COLLISION
-#
+func get_has_collision() -> int:#
 	return CollisionFlags.NO_COLLISION
+
+func _on_hit(attack_data: AttackData):
+	var _input = SyncManager.get_input_frame(SyncManager.current_tick).get_player_input(SyncManager.get_network_master()).get(str(owner.get_path())).duplicate(true)
+	_input['on_hit_frames'] = attack_data.on_hit_frames
+	_input['on_hit_knockback'] = attack_data.knockback
+	_input['stun_increase'] = attack_data.stun_increase
+	owner.state_change("HITTED_STATE", _input)

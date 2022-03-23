@@ -1,15 +1,16 @@
 extends "res://addons/godot-rollback-netcode/MessageSerializer.gd"
 
 enum INPUT {
-	LEFT = 1
-	RIGHT = 2
-	UP = 4
-	DOWN = 8
+	LEFT = 		0b_0000_0001
+	RIGHT = 	0b_0000_0010
+	UP = 		0b_0000_0100
+	DOWN =		0b_0000_1000
+	ATTACK =	0b_0001_0000
 }
 
 const input_path_mapping = {
-	"/root/MainMenu/Spatial/ClientPlayer": 1,
-	"/root/MainMenu/Spatial/ServerPlayer": 2
+	"/root/MainMenu/World/ClientPlayer": 1,
+	"/root/MainMenu/World/ServerPlayer": 2
 }
 var input_path_mapping_flip = {}
 
@@ -39,6 +40,8 @@ func serialize_input(input: Dictionary) -> PoolByteArray:
 		match player_input.get(GlobalConstants.Y_PLAYER_INPUT, 0):
 			1: header |= INPUT.UP
 			-1: header |= INPUT.DOWN
+		if player_input.get(GlobalConstants.ATTACK_PLAYER_INPUT, false):
+			header |= INPUT.ATTACK
 		output.put_u8(header)
 	
 	output.resize(output.get_position())
@@ -54,7 +57,7 @@ func unserialize_input(serialized: PoolByteArray) -> Dictionary:
 	output['$'] = buffer.get_u32()
 	
 	var element_counter = buffer.get_u8()
-	for index in range(element_counter):
+	for _index in range(element_counter):
 		var path = input_path_mapping_flip[buffer.get_u8()]
 		
 		var player_input = {}		
@@ -72,6 +75,8 @@ func unserialize_input(serialized: PoolByteArray) -> Dictionary:
 			player_input[GlobalConstants.Y_PLAYER_INPUT] = -1
 		else:
 			player_input[GlobalConstants.Y_PLAYER_INPUT] = 0
+			
+		player_input[GlobalConstants.ATTACK_PLAYER_INPUT] = (flagged_inputs & INPUT.ATTACK == INPUT.ATTACK)
 			
 		output[path] = player_input
 
