@@ -40,11 +40,7 @@ func is_network_host() -> bool:
 func is_network_master_for_node(node: Node) -> bool:
 	push_error("UNIMPLEMENTED ERROR: NetworkAdaptor.is_network_master_for_node()")
 	return true
-
-func get_network_master_for_node(node: Node) -> int:
-	push_error("UNIMPLEMENTED ERROR: NetworkAdaptor.is_network_master_for_node()")
-	return 1
-
+	
 func get_network_unique_id() -> int:
 	push_error("UNIMPLEMENTED ERROR: NetworkAdaptor.get_network_unique_id()")
 	return 1

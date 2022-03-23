@@ -221,14 +221,27 @@ func start_timing(timer: String) -> void:
 	assert(not _start_times.has(timer), "Timer already exists: %s" % timer)
 	_start_times[timer] = OS.get_ticks_usec()
 
-func stop_timing(timer: String) -> void:
+func stop_timing(timer: String, accumulate: bool = false) -> void:
 	assert(_start_times.has(timer), "No such timer: %s" % timer)
 	if _start_times.has(timer):
-		add_timing(timer, float(OS.get_ticks_usec() - _start_times[timer]) / 1000.0)
+		add_timing(timer, float(OS.get_ticks_usec() - _start_times[timer]) / 1000.0, accumulate)
 		_start_times.erase(timer)
 
-func add_timing(timer: String, msecs: float) -> void:
+func add_timing(timer: String, msecs: float, accumulate: bool = false) -> void:
 	if not data.has('timings'):
 		data['timings'] = {}
-	assert(not data['timings'].has(timer), "Already added a timing for %s" % timer)
-	data['timings'][timer] = msecs
+	if data['timings'].has(timer) and accumulate:
+		var old_average = data['timings'][timer + '.average']
+		var old_count = data['timings'][timer + '.count']
+		
+		data['timings'][timer] += msecs
+		data['timings'][timer + '.max'] = max(data['timings'][timer + '.max'], msecs)
+		data['timings'][timer + '.average'] = ((old_average * old_count) + msecs) / (old_count + 1)
+		data['timings'][timer + '.count'] += 1
+	else:
+		data['timings'][timer] = msecs
+		if accumulate:
+			data['timings'][timer + '.max'] = msecs
+			data['timings'][timer + '.average'] = 0.0
+			data['timings'][timer + '.count'] = 1
+			

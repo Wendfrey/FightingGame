@@ -274,7 +274,7 @@ func _ready() -> void:
 	_sound_manager.setup_sound_manager(self)
 	
 	if network_adaptor == null:
-		set_network_adaptor(_create_class_from_project_settings('network/rollback/classes/network_adaptor', DEFAULT_NETWORK_ADAPTOR_PATH))
+		reset_network_adaptor()
 	if message_serializer == null:
 		set_message_serializer(_create_class_from_project_settings('network/rollback/classes/message_serializer', DEFAULT_MESSAGE_SERIALIZER_PATH))
 	if hash_serializer == null:
@@ -314,6 +314,9 @@ func set_network_adaptor(_network_adaptor: NetworkAdaptor) -> void:
 	network_adaptor.connect("received_remote_stop", self, "_on_received_remote_stop")
 	network_adaptor.connect("received_input_tick", self, "_on_received_input_tick")
 	network_adaptor.attach_network_adaptor(self)
+
+func reset_network_adaptor() -> void:
+	set_network_adaptor(_create_class_from_project_settings('network/rollback/classes/network_adaptor', DEFAULT_NETWORK_ADAPTOR_PATH))
 
 func set_message_serializer(_message_serializer: MessageSerializer) -> void:
 	assert(not started, "Changing the message serializer after SyncManager has started will probably break everything")
@@ -539,7 +542,7 @@ func _call_network_process(input_frame: InputBufferFrame) -> void:
 		var node = nodes[i]
 		if node.is_inside_tree() and not node.is_queued_for_deletion():
 			if node.has_method('_network_preprocess'):
-				var player_input = input_frame.get_player_input(network_adaptor.get_network_master_for_node(node))
+				var player_input = input_frame.get_player_input(node.get_network_master())
 				node._network_preprocess(player_input.get(str(node.get_path()), {}))
 			if node.has_method('_network_process'):
 				process_nodes.append(node)
@@ -549,13 +552,13 @@ func _call_network_process(input_frame: InputBufferFrame) -> void:
 	# Call _network_process().
 	for node in process_nodes:
 		if node.is_inside_tree() and not node.is_queued_for_deletion():
-			var player_input = input_frame.get_player_input(network_adaptor.get_network_master_for_node(node))
+			var player_input = input_frame.get_player_input(node.get_network_master())
 			node._network_process(player_input.get(str(node.get_path()), {}))
 	
 	# Call _network_postprocess().
 	for node in postprocess_nodes:
 		if node.is_inside_tree() and not node.is_queued_for_deletion():
-			var player_input = input_frame.get_player_input(network_adaptor.get_network_master_for_node(node))
+			var player_input = input_frame.get_player_input(node.get_network_master())
 			node._network_postprocess(player_input.get(str(node.get_path()), {}))
 
 func _call_save_state() -> Dictionary:
@@ -776,7 +779,7 @@ func get_latest_input_from_peer(peer_id: int) -> Dictionary:
 	return {}
 
 func get_latest_input_for_node(node: Node) -> Dictionary:
-	return get_latest_input_from_peer_for_path(network_adaptor.get_network_master_for_node(node), str(node.get_path()))
+	return get_latest_input_from_peer_for_path(node.get_network_master(), str(node.get_path()))
 
 func get_latest_input_from_peer_for_path(peer_id: int, path: String) -> Dictionary:
 	return get_latest_input_from_peer(peer_id).get(path, {})

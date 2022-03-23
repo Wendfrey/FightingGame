@@ -11,6 +11,7 @@ enum PropertyType {
 	BASIC,
 	ENUM,
 	TIME,
+	SKIPPED,
 }
 
 var _property_definitions := {}
@@ -46,6 +47,9 @@ func _ready() -> void:
 	}
 	_property_definitions['end_time'] = {
 		type = PropertyType.TIME,
+	}
+	_property_definitions['timings'] = {
+		type = PropertyType.SKIPPED,
 	}
 	
 	refresh_from_log_data()
@@ -88,6 +92,8 @@ func refresh_from_log_data() -> void:
 			continue
 
 		var prop_def = _property_definitions.get(prop_name)
+		if prop_def.get('type') == PropertyType.SKIPPED:
+			continue
 		var row = create_item(root)
 		row.set_text(0, prop_def.get('label', prop_name.capitalize()))
 		
@@ -108,6 +114,11 @@ func refresh_from_log_data() -> void:
 			if frame:
 				row.set_text(index, _prop_to_string(frame.data, prop_name, {}))
 			index += 1
+	
+	if 'timings' in prop_names:
+		var timings_root = create_item(root)
+		timings_root.set_text(0, "Timings")
+		_add_timings(timings_root, frames)
 
 func _prop_to_string(data: Dictionary, prop_name: String, prop_def = null) -> String:
 	if prop_def == null:
@@ -147,3 +158,53 @@ func _prop_to_string(data: Dictionary, prop_name: String, prop_def = null) -> St
 		value += prop_def['suffix']
 	
 	return value
+
+func _add_timings(root: TreeItem, frames: Dictionary) -> void:
+	var all_timings := {}
+	for peer_id in log_data.peer_ids:
+		var frame = frames[peer_id]
+		if frame:
+			for key in frame.data.get('timings', {}):
+				all_timings[key] = true
+	
+	var all_timings_names = all_timings.keys()
+	all_timings_names.sort()
+	
+	var items := {}
+	for timing_name in all_timings_names:
+		var timing_name_parts = timing_name.split('.')
+		var item = _create_nested_item(timing_name_parts, root, items)
+		var index = 1
+		for peer_id in log_data.peer_ids:
+			var frame = frames[peer_id]
+			if frame:
+				var timing = frame.data.get('timings', {}).get(timing_name)
+				if timing != null:
+					if timing_name_parts[timing_name_parts.size() - 1] != 'count':
+						timing = str(timing) + ' ms'
+					else:
+						timing = str(timing)
+					item.set_text(index, timing)
+			index += 1
+
+func _create_nested_item(name_parts: Array, root: TreeItem, items: Dictionary) -> TreeItem:
+	if name_parts.size() == 0:
+		return null
+	
+	var name = PoolStringArray(name_parts).join('.')
+	if items.has(name):
+		return items[name]
+	
+	var item: TreeItem
+	if name_parts.size() == 1:
+		item = create_item(root)
+	else:
+		var parent_parts = name_parts.slice(0, name_parts.size() - 2)
+		var parent: TreeItem = _create_nested_item(parent_parts, root, items)
+		item = create_item(parent)
+	
+	item.set_text(0, name_parts[name_parts.size() - 1].capitalize())
+	item.collapsed = true
+	items[name] = item
+	
+	return item
