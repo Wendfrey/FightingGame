@@ -22,7 +22,7 @@ func _ready():
 	SyncManager.connect("sync_error", self, "_on_SyncManager_sync_error")
 
 func _on_ServerButton_pressed():
-	_set_default_network_adaptor()
+	SyncManager.reset_network_adaptor()
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_server(int(port_field.text))
 	get_tree().network_peer = peer
@@ -30,7 +30,7 @@ func _on_ServerButton_pressed():
 	message_label.text = "Listening..."
 
 func _on_ClientButton_pressed():
-	_set_default_network_adaptor()
+	SyncManager.reset_network_adaptor()
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_client(ip_field.text, int(port_field.text))
 	get_tree().network_peer = peer
@@ -119,6 +119,3 @@ func _on_LocalButton_pressed():
 	connection_panel.visible = false
 	SyncManager.set_network_adaptor(DummyAdaptor.new())
 	SyncManager.start()
-
-func _set_default_network_adaptor():
-	SyncManager.set_network_adaptor(SyncManager._create_class_from_project_settings('network/rollback/classes/network_adaptor', SyncManager.DEFAULT_NETWORK_ADAPTOR_PATH))

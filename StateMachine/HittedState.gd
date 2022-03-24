@@ -43,7 +43,7 @@ func _on_player_preprocess(_input: Dictionary):
 	ticks_counter += 1
 	
 func _on_hit(attack_data:AttackData):
-	var _input = SyncManager.get_input_frame(SyncManager.current_tick).get_player_input(SyncManager.get_network_master()).get(str(owner.get_path()))
+	var _input = SyncManager.get_input_frame(SyncManager.current_tick).get_player_input(owner.get_network_master()).get(str(owner.get_path()))
 	
 	_input['on_hit_knockback'] = attack_data.knockback
 	_input['on_hit_frames'] = attack_data.on_hit_frames
