@@ -4,21 +4,28 @@ var HitBoxInstance = preload("res://Boxes/Hitbox.tscn")
 var DangerBoxInstance = preload("res://Boxes/DangerBox.tscn")
 
 var tick_count = 0
-var nodepath_reference: String
+var hitbox_path: String
+var dangerbox_path: String
+
+#only one frame thing, we dont need to save/load these
+var attack_data: AttackData = null
 
 func _first_time_loaded(_input: Dictionary):
+	print("%s - First frame attack: %s" %[owner.name, SyncManager.current_tick])
 	._first_time_loaded(_input)
 	tick_count = 0
 	spawn_dangerbox()
 
 func _load_state(_input: Dictionary):
 	tick_count = _input.get("tick_count", 0)
-	nodepath_reference = _input.get('nodepath_reference', '')
+	hitbox_path = _input.get('hitbox_path', '')
+	dangerbox_path = _input.get('dangerbox_path', '')
 
 func _save_state() -> Dictionary:
 	return{
 		"tick_count": tick_count,
-		'nodepath_reference': nodepath_reference
+		'hitbox_path': hitbox_path,
+		'dangerbox_path': dangerbox_path
 	}
 
 func _on_player_process(_input:Dictionary):
@@ -30,6 +37,20 @@ func _on_player_process(_input:Dictionary):
 	
 	if tick_count == 9:
 		spawn_hitbox(_input.get(GlobalConstants.Y_PLAYER_INPUT,0))
+		
+func _on_player_postprocess(_input:Dictionary):
+	if not attack_data:
+		return
+	var hitbox = get_node(hitbox_path)
+	var dangerbox = get_node(dangerbox_path)
+#	We want to check if this frame the enemy player was in range of the collision, so remove it next preprocess frame 
+	if hitbox:
+		hitbox.prepare_timeout()
+	if dangerbox:
+		dangerbox.prepare_timeout()
+		
+	._on_hit(attack_data)
+	attack_data = null
 	
 func spawn_hitbox(y_input: int):
 	var distance = SGFixed.ONE * 32
@@ -62,7 +83,7 @@ func spawn_hitbox(y_input: int):
 		"active_frames": 3
 	}
 	var node = SyncManager.spawn("Hitbox", owner.get_parent(), HitBoxInstance, data)
-	nodepath_reference = str(node.get_path())
+	hitbox_path = str(node.get_path())
 	node._check_collision()
 
 func spawn_dangerbox():
@@ -76,13 +97,9 @@ func spawn_dangerbox():
 		'active_frames': 20,
 		'ignore_node': owner
 	}
-	SyncManager.spawn('Dangerbox', owner.get_parent(), DangerBoxInstance, _extra)
+	var node = SyncManager.spawn('Dangerbox', owner.get_parent(), DangerBoxInstance, _extra)
+	dangerbox_path = str(node.get_path())
 
 func _on_hit(attack_state: AttackData):
-	var node = get_node(nodepath_reference)
-#	We want to check if this frame the enemy player was in range of the collision, so remove it next preprocess frame 
-	if node:
-		node.prepare_timeout()
-		
-	._on_hit(attack_state)
+	attack_data = attack_state
 	
