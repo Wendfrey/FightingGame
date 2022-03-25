@@ -160,3 +160,6 @@ func _init_cmds(values):
 func _on_hitbox_collision(attack_data: AttackData):
 	current_state._on_hit(attack_data)
 	
+func _on_dangerbox_collision():
+	pass
+	

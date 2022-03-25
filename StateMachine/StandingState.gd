@@ -14,6 +14,8 @@ func _on_player_preprocess(_input: Dictionary):
 		owner.state_change("BACK_DASH_STATE", _input)
 	elif owner._get_command_result("ForwardDashCommand"):
 		owner.state_change("FORWARD_DASH_STATE", _input)
+	elif (check_if_inside_blocking(x_direction)):
+			owner.state_change("BLOCKING_STATE", _input)
 	elif x_direction != 0:
 		owner.move_speed_body(x_direction * speed, 0)
 
@@ -29,3 +31,19 @@ func _on_hit(attack_data: AttackData):
 	else:
 		print(owner.name + "HURT - Level " + str(attack_data.level))
 		._on_hit(attack_data)
+
+func check_if_inside_blocking(x_direction: int) -> bool:
+	if x_direction == 0:
+		return false
+	if x_direction == -1 and owner.forward == GlobalConstants.DIRECTION.LEFT:
+		return false
+	if x_direction == 1 and owner.forward == GlobalConstants.DIRECTION.RIGHT:
+		return false
+	
+	var danger_boxes = get_tree().get_nodes_in_group("dangerbox")
+	for d_box in danger_boxes:
+		if d_box._is_inside(owner):
+			print("is inside")
+			return true
+			
+	return false

@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://Player/Player.gd" type="Script" id=1]
 [ext_resource path="res://StateMachine/StandingState.gd" type="Script" id=2]
@@ -7,8 +7,9 @@
 [ext_resource path="res://StateMachine/BackDashState.gd" type="Script" id=5]
 [ext_resource path="res://StateMachine/AttackState.gd" type="Script" id=6]
 [ext_resource path="res://Player/Player_Sprite.png" type="Texture" id=7]
-[ext_resource path="res://box_graph.png" type="Texture" id=8]
+[ext_resource path="res://Boxes/box_graph.png" type="Texture" id=8]
 [ext_resource path="res://StateMachine/HittedState.gd" type="Script" id=9]
+[ext_resource path="res://StateMachine/BlockingState.gd" type="Script" id=10]
 
 [sub_resource type="SGRectangleShape2D" id=2]
 extents_x = 1245184
@@ -59,3 +60,6 @@ script = ExtResource( 6 )
 
 [node name="HITTED_STATE" type="Node" parent="StateList"]
 script = ExtResource( 9 )
+
+[node name="BLOCKING_STATE" type="Node" parent="StateList"]
+script = ExtResource( 10 )

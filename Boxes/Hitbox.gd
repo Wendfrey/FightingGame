@@ -4,7 +4,6 @@ onready var collision_shape = $SGCollisionShape2D
 onready var shape = collision_shape.shape as SGRectangleShape2D
 onready var despawn_timer = $HitboxDespawnTimer
 onready var hitbox_visual = $Unlinker/HitboxVisual
-onready var cam = get_node('/root/MainMenu/Spatial/Camera') as Camera
 
 var ignore_nodepath = ""
 var attack_data: AttackData

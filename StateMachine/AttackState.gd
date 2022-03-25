@@ -1,6 +1,7 @@
-extends "res://StateMachine/EmptyState.gd"
+extends "res://StateMachine/NonBlockingState.gd"
 
-var HitBoxInstance = preload("res://Hitbox.tscn")
+var HitBoxInstance = preload("res://Boxes/Hitbox.tscn")
+var DangerBoxInstance = preload("res://Boxes/DangerBox.tscn")
 
 var tick_count = 0
 var nodepath_reference: String
@@ -8,6 +9,7 @@ var nodepath_reference: String
 func _first_time_loaded(_input: Dictionary):
 	._first_time_loaded(_input)
 	tick_count = 0
+	spawn_dangerbox()
 
 func _load_state(_input: Dictionary):
 	tick_count = _input.get("tick_count", 0)
@@ -62,6 +64,19 @@ func spawn_hitbox(y_input: int):
 	var node = SyncManager.spawn("Hitbox", owner.get_parent(), HitBoxInstance, data)
 	nodepath_reference = str(node.get_path())
 	node._check_collision()
+
+func spawn_dangerbox():
+	var distance = SGFixed.ONE * (16 if owner.forward == GlobalConstants.DIRECTION.RIGHT else -16)
+	distance += owner.fixed_position.x
+	var _extra = {
+		'height': SGFixed.ONE * 48,
+		'width': SGFixed.ONE * 64,
+		'x': distance,
+		'y': owner.fixed_position.y,
+		'active_frames': 20,
+		'ignore_node': owner
+	}
+	SyncManager.spawn('Dangerbox', owner.get_parent(), DangerBoxInstance, _extra)
 
 func _on_hit(attack_state: AttackData):
 	var node = get_node(nodepath_reference)
