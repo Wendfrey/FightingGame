@@ -49,6 +49,7 @@ func add_project_settings() -> void:
 	_add_project_setting('network/rollback/debug/physics_process_msecs', TYPE_REAL, 10.0, PROPERTY_HINT_RANGE, "0.0, 60.0")
 	_add_project_setting('network/rollback/debug/process_msecs', TYPE_REAL, 10.0, PROPERTY_HINT_RANGE, "0.0, 60.0")
 	_add_project_setting('network/rollback/debug/check_message_serializer_roundtrip', TYPE_BOOL, false)
+	_add_project_setting('network/rollback/debug/check_local_state_consistency', TYPE_BOOL, false)
 	
 	_add_project_setting('network/rollback/log_inspector/replay_match_scene_path', TYPE_STRING, "", PROPERTY_HINT_FILE, "*.tscn,*.scn")
 	_add_project_setting('network/rollback/log_inspector/replay_match_scene_method', TYPE_STRING, 'setup_match_for_replay')

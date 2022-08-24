@@ -6,6 +6,7 @@ const NetworkAdaptor = preload("res://addons/godot-rollback-netcode/NetworkAdapt
 const MessageSerializer = preload("res://addons/godot-rollback-netcode/MessageSerializer.gd")
 const HashSerializer = preload("res://addons/godot-rollback-netcode/HashSerializer.gd")
 const Logger = preload("res://addons/godot-rollback-netcode/Logger.gd")
+const DebugStateComparer = preload("res://addons/godot-rollback-netcode/DebugStateComparer.gd")
 
 class Peer extends Reference:
 	var peer_id: int
@@ -164,6 +165,7 @@ var debug_skip_nth_message := 0
 var debug_physics_process_msecs := 10.0
 var debug_process_msecs := 10.0
 var debug_check_message_serializer_roundtrip := false
+var debug_check_local_state_consistency := false
 
 # In seconds, because we don't want it to be dependent on the network tick.
 var ping_frequency := 1.0 setget set_ping_frequency
@@ -196,6 +198,8 @@ var _last_state_hashed_tick := 0
 var _state_mismatch_count := 0
 var _in_rollback := false
 var _ran_physics_process := false
+var _ticks_since_last_interpolation_frame := 0
+var _debug_check_local_state_consistency_buffer := []
 
 signal sync_started ()
 signal sync_stopped ()
@@ -225,6 +229,9 @@ func _enter_tree() -> void:
 	project_settings_node.add_project_settings()
 	project_settings_node.free()
 
+func _exit_tree() -> void:
+	stop_logging()
+
 func _ready() -> void:
 	#get_tree().connect("network_peer_disconnected", self, "remove_peer")
 	#get_tree().connect("server_disconnected", self, "stop")
@@ -246,7 +253,8 @@ func _ready() -> void:
 		debug_skip_nth_message = 'network/rollback/debug/skip_nth_message',
 		debug_physics_process_msecs = 'network/rollback/debug/physics_process_msecs',
 		debug_process_msecs = 'network/rollback/debug/process_msecs',
-		debug_check_message_serializer_roundtrip = 'network/rollback/debug/check_message_serializer_roundtrip'
+		debug_check_message_serializer_roundtrip = 'network/rollback/debug/check_message_serializer_roundtrip',
+		debug_check_local_state_consistency = 'network/rollback/debug/check_local_state_consistency',
 	}
 	for property_name in project_settings:
 		var setting_name = project_settings[property_name]
@@ -463,6 +471,7 @@ func _reset() -> void:
 	_state_mismatch_count = 0
 	_in_rollback = false
 	_ran_physics_process = false
+	_ticks_since_last_interpolation_frame = 0
 
 func _on_received_remote_start() -> void:
 	_reset()
@@ -651,11 +660,13 @@ func _do_tick(is_rollback: bool = false) -> bool:
 	# Predict any missing input.
 	for peer_id in peers:
 		if not input_frame.players.has(peer_id) or input_frame.players[peer_id].predicted:
-			var predicted_input := {}
+			var predicted_input: Dictionary
 			if previous_frame:
 				var peer: Peer = peers[peer_id]
 				var ticks_since_real_input = current_tick - peer.last_remote_input_tick_received
 				predicted_input = _call_predict_remote_input(previous_frame.get_player_input(peer_id), ticks_since_real_input)
+			else:
+				predicted_input = _call_predict_remote_input({}, -1)
 			_calculate_data_hash(predicted_input)
 			input_frame.players[peer_id] = InputForPlayer.new(predicted_input, true)
 	
@@ -668,6 +679,10 @@ func _do_tick(is_rollback: bool = false) -> bool:
 		return false
 	
 	_save_current_state()
+	
+	# Debug check that states computed multiple times with complete inputs are the same
+	if debug_check_local_state_consistency and _last_state_hashed_tick >= current_tick:
+		_debug_check_consistent_local_state(state_buffer[-1], "Recomputed")
 	
 	emit_signal("tick_finished", is_rollback)
 	return true
@@ -985,8 +1000,18 @@ func _physics_process(_delta: float) -> void:
 			return
 		
 		_call_load_state(state_buffer[-rollback_ticks - 1].data)
-		state_buffer.resize(state_buffer.size() - rollback_ticks)
+		
 		current_tick -= rollback_ticks
+		
+		if debug_check_local_state_consistency:
+			# Save already computed states for better logging in case of discrepancy
+			_debug_check_local_state_consistency_buffer = state_buffer.slice(state_buffer.size() - rollback_ticks - 1, state_buffer.size() - 1)
+			# Debug check that states computed multiple times with complete inputs are the same
+			if _last_state_hashed_tick >= current_tick:
+				var state := StateBufferFrame.new(current_tick, _call_save_state())
+				_debug_check_consistent_local_state(state, "Loaded")
+		
+		state_buffer.resize(state_buffer.size() - rollback_ticks)
 		
 		# Invalidate sync ticks after this, they may be asked for again
 		if requested_input_complete_tick > 0 and current_tick >= requested_input_complete_tick:
@@ -1099,18 +1124,21 @@ func _physics_process(_delta: float) -> void:
 	var local_input = _call_get_local_input()
 	_calculate_data_hash(local_input)
 	input_frame.players[network_adaptor.get_network_unique_id()] = InputForPlayer.new(local_input, false)
-	var serialized_input := message_serializer.serialize_input(local_input)
 	
-	# check that the serialized then unserialized input matches the original 
-	if debug_check_message_serializer_roundtrip:
-		var unserialized_input := message_serializer.unserialize_input(serialized_input)
-		_calculate_data_hash(unserialized_input)
-		if local_input["$"] != unserialized_input["$"]:
-			push_error("The input is different after being serialized and unserialized \n Original: %s \n Unserialized: %s" % [ordered_dict2str(local_input), ordered_dict2str(unserialized_input)])
+	# Only serialize and send input when we have real remote peers.
+	if peers.size() > 0 and not mechanized:
+		var serialized_input := message_serializer.serialize_input(local_input)
 		
-	_input_send_queue.append(serialized_input)
-	assert(input_tick == _input_send_queue_start_tick + _input_send_queue.size() - 1, "Input send queue ticks numbers are misaligned")
-	_send_input_messages_to_all_peers()
+		# check that the serialized then unserialized input matches the original 
+		if debug_check_message_serializer_roundtrip:
+			var unserialized_input := message_serializer.unserialize_input(serialized_input)
+			_calculate_data_hash(unserialized_input)
+			if local_input["$"] != unserialized_input["$"]:
+				push_error("The input is different after being serialized and unserialized \n Original: %s \n Unserialized: %s" % [ordered_dict2str(local_input), ordered_dict2str(unserialized_input)])
+			
+		_input_send_queue.append(serialized_input)
+		assert(input_tick == _input_send_queue_start_tick + _input_send_queue.size() - 1, "Input send queue ticks numbers are misaligned")
+		_send_input_messages_to_all_peers()
 	
 	if current_tick > 0:
 		if _logger:
@@ -1137,6 +1165,7 @@ func _physics_process(_delta: float) -> void:
 	
 	_time_since_last_tick = 0.0
 	_ran_physics_process = true
+	_ticks_since_last_interpolation_frame += 1
 	
 	var total_time_msecs = float(OS.get_ticks_usec() - start_time) / 1000.0
 	if debug_physics_process_msecs > 0 and total_time_msecs > debug_physics_process_msecs:
@@ -1153,15 +1182,16 @@ func _process(delta: float) -> void:
 	
 	# These are things that we want to run during "interpolation frames", in
 	# order to slim down the normal frames. Or, if interpolation is disabled,
-	# we need to run these always.
-	if not interpolation or not _ran_physics_process:
+	# we need to run these always. If we haven't managed to run this for more
+	# one tick, we make sure to sneak it in just in case.
+	if not interpolation or not _ran_physics_process or _ticks_since_last_interpolation_frame > 1:
 		if _logger:
 			_logger.begin_interpolation_frame(current_tick)
 		
 		_time_since_last_tick += delta
 		
-		# Don't interpolate if we are skipping ticks.
-		if interpolation and skip_ticks == 0:
+		# Don't interpolate if we are skipping ticks, or just ran physics process.
+		if interpolation and skip_ticks == 0 and not _ran_physics_process:
 			var weight: float = _time_since_last_tick / tick_time
 			if weight > 1.0:
 				weight = 1.0
@@ -1183,6 +1213,9 @@ func _process(delta: float) -> void:
 		
 		if _logger:
 			_logger.end_interpolation_frame(start_time)
+		
+		# Clear counter, because we just did an interpolation frame.
+		_ticks_since_last_interpolation_frame = 0
 	
 	# Clear flag so subsequent _process() calls will know that they weren't
 	# preceeded by _physics_process().
@@ -1391,3 +1424,15 @@ func ordered_dict2str(dict: Dictionary) -> String:
 			ret += ", "
 	ret += "}"
 	return ret
+
+func _debug_check_consistent_local_state(state: StateBufferFrame, message := "Loaded") -> void:
+	var hashed_state := _calculate_data_hash(state.data)
+	var previously_hashed_frame := _get_state_hash_frame(current_tick)
+	var previous_state = _debug_check_local_state_consistency_buffer.pop_front()
+	if previously_hashed_frame and previously_hashed_frame.state_hash != hashed_state:
+		var comparer = DebugStateComparer.new()
+		comparer.find_mismatches(previous_state.data, state.data)
+		push_error("%s state is not consistent with saved state:\n %s" % [
+			message,
+			comparer.print_mismatches(),
+			])

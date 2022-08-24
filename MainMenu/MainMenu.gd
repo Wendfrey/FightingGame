@@ -73,7 +73,7 @@ func _on_server_disconnected():
 func _on_SyncManager_sync_started():
 	message_label.text = "Started!"
 	var time = OS.get_datetime()
-	var file_directory = "./logs/log_peer_"
+	var file_directory = "user://logs/log_peer_"
 	file_directory += "%0000d%00d%00d-%00d_%00d_%00d" % [
 		time["year"],
 		time["month"],
