@@ -1,0 +1,290 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://addons/fight_data_creator/custom_nodes/NumFieldNode.gd" type="Script" id=1]
+[ext_resource path="res://addons/fight_data_creator/custom_nodes/TextFieldNode.gd" type="Script" id=2]
+[ext_resource path="res://addons/fight_data_creator/scenes/frameeditors/HitboxFrameDataEditor.gd" type="Script" id=3]
+[ext_resource path="res://addons/fight_data_creator/res/DefaultTheme.tres" type="Theme" id=4]
+[ext_resource path="res://addons/fight_data_creator/custom_nodes/FloatLineEdit.gd" type="Script" id=5]
+
+[node name="FrameDataEditor" type="VBoxContainer"]
+margin_right = 1024.0
+margin_bottom = 401.0
+theme = ExtResource( 4 )
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_right = 1024.0
+margin_bottom = 22.0
+theme = ExtResource( 4 )
+text = "FrameData"
+
+[node name="Separator" type="Control" parent="."]
+margin_top = 26.0
+margin_right = 1024.0
+margin_bottom = 46.0
+rect_min_size = Vector2( 0, 20 )
+theme = ExtResource( 4 )
+
+[node name="Label2" type="Label" parent="."]
+margin_top = 50.0
+margin_right = 1024.0
+margin_bottom = 72.0
+theme = ExtResource( 4 )
+text = "HitBoxName"
+
+[node name="FrameDataName" type="LineEdit" parent="."]
+margin_top = 76.0
+margin_right = 1024.0
+margin_bottom = 108.0
+theme = ExtResource( 4 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_top = 112.0
+margin_right = 1024.0
+margin_bottom = 170.0
+theme = ExtResource( 4 )
+
+[node name="CenterContainer" type="CenterContainer" parent="HBoxContainer"]
+margin_right = 510.0
+margin_bottom = 58.0
+size_flags_horizontal = 3
+theme = ExtResource( 4 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterContainer"]
+margin_left = 182.0
+margin_right = 328.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+
+[node name="StartFrameLabel" type="Label" parent="HBoxContainer/CenterContainer/VBoxContainer"]
+margin_right = 146.0
+margin_bottom = 22.0
+theme = ExtResource( 4 )
+text = "Start Frame"
+
+[node name="StartFrameSpinBox" type="SpinBox" parent="HBoxContainer/CenterContainer/VBoxContainer"]
+margin_top = 26.0
+margin_right = 146.0
+margin_bottom = 58.0
+size_flags_horizontal = 0
+theme = ExtResource( 4 )
+
+[node name="CenterContainer2" type="CenterContainer" parent="HBoxContainer"]
+margin_left = 514.0
+margin_right = 1024.0
+margin_bottom = 58.0
+size_flags_horizontal = 3
+theme = ExtResource( 4 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterContainer2"]
+margin_left = 180.0
+margin_right = 330.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+
+[node name="FrameDurationLabel" type="Label" parent="HBoxContainer/CenterContainer2/VBoxContainer"]
+margin_right = 150.0
+margin_bottom = 22.0
+theme = ExtResource( 4 )
+text = "Duration Frames"
+
+[node name="FrameDurationSpinBox" type="SpinBox" parent="HBoxContainer/CenterContainer2/VBoxContainer"]
+margin_top = 26.0
+margin_right = 146.0
+margin_bottom = 58.0
+size_flags_horizontal = 0
+theme = ExtResource( 4 )
+min_value = 1.0
+value = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_top = 174.0
+margin_right = 1024.0
+margin_bottom = 258.0
+theme = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+margin_right = 1024.0
+margin_bottom = 22.0
+theme = ExtResource( 4 )
+text = "Box size"
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
+margin_top = 26.0
+margin_right = 1024.0
+margin_bottom = 84.0
+theme = ExtResource( 4 )
+columns = 4
+
+[node name="LabelXPos" type="Label" parent="VBoxContainer/GridContainer"]
+margin_right = 253.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+theme = ExtResource( 4 )
+text = "Position X"
+align = 1
+
+[node name="LabelYPos" type="Label" parent="VBoxContainer/GridContainer"]
+margin_left = 257.0
+margin_right = 510.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+theme = ExtResource( 4 )
+text = "Position Y"
+align = 1
+
+[node name="LabelXSize" type="Label" parent="VBoxContainer/GridContainer"]
+margin_left = 514.0
+margin_right = 767.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+theme = ExtResource( 4 )
+text = "Size X"
+align = 1
+
+[node name="LabelYSize" type="Label" parent="VBoxContainer/GridContainer"]
+margin_left = 771.0
+margin_right = 1024.0
+margin_bottom = 22.0
+size_flags_horizontal = 3
+theme = ExtResource( 4 )
+text = "Size Y"
+align = 1
+
+[node name="PosXSpinBox" type="LineEdit" parent="VBoxContainer/GridContainer"]
+margin_top = 26.0
+margin_right = 253.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+script = ExtResource( 5 )
+
+[node name="PosYSpinBox" type="LineEdit" parent="VBoxContainer/GridContainer"]
+margin_left = 257.0
+margin_top = 26.0
+margin_right = 510.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+script = ExtResource( 5 )
+
+[node name="SizeXSpinBox" type="LineEdit" parent="VBoxContainer/GridContainer"]
+margin_left = 514.0
+margin_top = 26.0
+margin_right = 767.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+script = ExtResource( 5 )
+
+[node name="SizeYSpinBox" type="LineEdit" parent="VBoxContainer/GridContainer"]
+margin_left = 771.0
+margin_top = 26.0
+margin_right = 1024.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+script = ExtResource( 5 )
+
+[node name="Separator2" type="Control" parent="."]
+margin_top = 262.0
+margin_right = 1024.0
+margin_bottom = 272.0
+rect_min_size = Vector2( 0, 10 )
+theme = ExtResource( 4 )
+
+[node name="TabContainer" type="TabContainer" parent="."]
+margin_top = 276.0
+margin_right = 1024.0
+margin_bottom = 386.0
+theme = ExtResource( 4 )
+tab_align = 0
+use_hidden_tabs_for_min_size = true
+
+[node name="On Hit Data" type="VBoxContainer" parent="TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 40.0
+margin_right = -4.0
+margin_bottom = -4.0
+theme = ExtResource( 4 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/On Hit Data"]
+margin_right = 1016.0
+margin_bottom = 58.0
+theme = ExtResource( 4 )
+
+[node name="OnHitHitstun" type="VBoxContainer" parent="TabContainer/On Hit Data/HBoxContainer"]
+margin_right = 146.0
+margin_bottom = 58.0
+script = ExtResource( 1 )
+text = "Hitstun"
+
+[node name="OnHitKnockback" type="VBoxContainer" parent="TabContainer/On Hit Data/HBoxContainer"]
+margin_left = 150.0
+margin_right = 280.0
+margin_bottom = 58.0
+rect_min_size = Vector2( 100, 0 )
+script = ExtResource( 2 )
+text = "Knockback"
+
+[node name="HSeparator" type="HSeparator" parent="TabContainer/On Hit Data"]
+margin_top = 62.0
+margin_right = 1016.0
+margin_bottom = 66.0
+theme = ExtResource( 4 )
+
+[node name="On Block Data" type="VBoxContainer" parent="TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 40.0
+margin_right = -4.0
+margin_bottom = -4.0
+theme = ExtResource( 4 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/On Block Data"]
+margin_right = 40.0
+margin_bottom = 40.0
+theme = ExtResource( 4 )
+
+[node name="OnBlockBlockstun" type="VBoxContainer" parent="TabContainer/On Block Data/HBoxContainer"]
+margin_right = 74.0
+margin_bottom = 42.0
+script = ExtResource( 1 )
+text = "Hitstun"
+
+[node name="OnBlockKnockback" type="VBoxContainer" parent="TabContainer/On Block Data/HBoxContainer"]
+margin_left = 78.0
+margin_right = 178.0
+margin_bottom = 42.0
+rect_min_size = Vector2( 100, 0 )
+script = ExtResource( 2 )
+text = "Knockback"
+
+[node name="HSeparator" type="HSeparator" parent="TabContainer/On Block Data"]
+margin_right = 40.0
+margin_bottom = 4.0
+theme = ExtResource( 4 )
+
+[node name="On Whiff Data" type="HBoxContainer" parent="TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 40.0
+margin_right = -4.0
+margin_bottom = -4.0
+theme = ExtResource( 4 )
+
+[node name="Separator3" type="Control" parent="."]
+margin_top = 390.0
+margin_right = 1024.0
+margin_bottom = 400.0
+rect_min_size = Vector2( 0, 10 )
+theme = ExtResource( 4 )
+
+[connection signal="text_changed" from="FrameDataName" to="." method="_on_FrameDataName_text_changed"]
+[connection signal="value_changed" from="HBoxContainer/CenterContainer/VBoxContainer/StartFrameSpinBox" to="." method="_on_StartFrameSpinBox_value_changed"]
+[connection signal="value_changed" from="HBoxContainer/CenterContainer2/VBoxContainer/FrameDurationSpinBox" to="." method="_on_FrameDurationSpinBox_value_changed"]

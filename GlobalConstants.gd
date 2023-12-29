@@ -21,3 +21,15 @@ enum HIT_LEVEL {
 
 const PIXEL_TO_WORLD = 0.01
 const WORLD_TO_PIXEL = 100
+
+static func fromStringToFixedVal(_str:String) -> int:
+	var result:int = 0
+	if(_str.is_valid_integer()):
+		result = _str.to_int() << 16
+	elif(_str.is_valid_float()):
+		var splitted = _str.split(".", false, 2)
+		result = splitted[1].to_int() << 16
+		for i in splitted[1].length():
+			result /= 10
+		result += splitted[0] * 65536
+	return result

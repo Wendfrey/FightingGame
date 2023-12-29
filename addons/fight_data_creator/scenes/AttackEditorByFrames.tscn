@@ -1,0 +1,258 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://addons/fight_data_creator/scenes/FrameWindow.gd" type="Script" id=1]
+[ext_resource path="res://addons/fight_data_creator/scenes/FoldPropertiesButton.gd" type="Script" id=2]
+[ext_resource path="res://addons/fight_data_creator/scenes/AttackEditorByFrames.gd" type="Script" id=3]
+[ext_resource path="res://addons/fight_data_creator/imgs/godot_no_visibility_icon.svg" type="Texture" id=4]
+[ext_resource path="res://addons/fight_data_creator/fonts/RobotoMono-Medium.ttf" type="DynamicFontData" id=5]
+[ext_resource path="res://addons/fight_data_creator/scenes/AddPropertyDialog.gd" type="Script" id=6]
+[ext_resource path="res://addons/fight_data_creator/scenes/PropertiesList.gd" type="Script" id=7]
+[ext_resource path="res://addons/fight_data_creator/res/DefaultTheme.tres" type="Theme" id=8]
+
+[sub_resource type="DynamicFont" id=2]
+size = 20
+use_filter = true
+font_data = ExtResource( 5 )
+
+[sub_resource type="DynamicFont" id=3]
+size = 20
+use_filter = true
+font_data = ExtResource( 5 )
+
+[node name="AttackEditorByFrames" type="WindowDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -512.0
+margin_bottom = -300.0
+rect_min_size = Vector2( 400, 300 )
+theme = ExtResource( 8 )
+script = ExtResource( 3 )
+
+[node name="MainFrame" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 8 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="vBox" type="VBoxContainer" parent="MainFrame"]
+margin_right = 512.0
+margin_bottom = 300.0
+theme = ExtResource( 8 )
+
+[node name="Topbar" type="HBoxContainer" parent="MainFrame/vBox"]
+margin_right = 512.0
+margin_bottom = 32.0
+theme = ExtResource( 8 )
+
+[node name="FrameLength" type="Label" parent="MainFrame/vBox/Topbar"]
+margin_top = 5.0
+margin_right = 130.0
+margin_bottom = 27.0
+theme = ExtResource( 8 )
+text = "Attack Frames"
+
+[node name="FrameLengthSpinBox" type="SpinBox" parent="MainFrame/vBox/Topbar"]
+margin_left = 134.0
+margin_right = 280.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 100, 0 )
+theme = ExtResource( 8 )
+min_value = 1.0
+max_value = 200.0
+value = 10.0
+suffix = "frames"
+
+[node name="HSeparator" type="HSeparator" parent="MainFrame/vBox"]
+margin_top = 36.0
+margin_right = 512.0
+margin_bottom = 40.0
+theme = ExtResource( 8 )
+
+[node name="FoldPropertiesButton" type="Button" parent="MainFrame/vBox"]
+process_priority = 1
+margin_top = 44.0
+margin_right = 138.0
+margin_bottom = 72.0
+size_flags_horizontal = 0
+theme = ExtResource( 8 )
+custom_constants/hseparation = 10
+toggle_mode = true
+text = "Properties"
+icon = ExtResource( 4 )
+script = ExtResource( 2 )
+foldingNode = NodePath("../PropertiesContainer")
+
+[node name="PropertiesContainer" type="VBoxContainer" parent="MainFrame/vBox"]
+visible = false
+margin_top = 62.0
+margin_right = 1024.0
+margin_bottom = 144.0
+theme = ExtResource( 8 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TitleProperties" type="Label" parent="MainFrame/vBox/PropertiesContainer"]
+margin_right = 1024.0
+margin_bottom = 27.0
+theme = ExtResource( 8 )
+custom_fonts/font = SubResource( 2 )
+text = "Add properties"
+
+[node name="PropertyButtonsContainer" type="HBoxContainer" parent="MainFrame/vBox/PropertiesContainer"]
+margin_top = 31.0
+margin_right = 1024.0
+margin_bottom = 64.0
+theme = ExtResource( 8 )
+
+[node name="AddNewPropertyButton" type="Button" parent="MainFrame/vBox/PropertiesContainer/PropertyButtonsContainer"]
+margin_right = 24.0
+margin_bottom = 33.0
+custom_fonts/font = SubResource( 3 )
+text = "+"
+
+[node name="RemovePropertyButton" type="Button" parent="MainFrame/vBox/PropertiesContainer/PropertyButtonsContainer"]
+margin_left = 28.0
+margin_right = 52.0
+margin_bottom = 33.0
+custom_fonts/font = SubResource( 3 )
+text = "-"
+
+[node name="PropertiesListContainer" type="PanelContainer" parent="MainFrame/vBox/PropertiesContainer"]
+margin_top = 68.0
+margin_right = 1024.0
+margin_bottom = 82.0
+theme = ExtResource( 8 )
+
+[node name="PropertiesList" type="VBoxContainer" parent="MainFrame/vBox/PropertiesContainer/PropertiesListContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 7.0
+theme = ExtResource( 8 )
+script = ExtResource( 7 )
+
+[node name="HSeparator2" type="HSeparator" parent="MainFrame/vBox"]
+margin_top = 76.0
+margin_right = 512.0
+margin_bottom = 80.0
+theme = ExtResource( 8 )
+
+[node name="FrameDataEditorContainer" type="PanelContainer" parent="MainFrame/vBox"]
+visible = false
+margin_top = 66.0
+margin_right = 1024.0
+margin_bottom = 66.0
+theme = ExtResource( 8 )
+
+[node name="Body" type="Panel" parent="MainFrame/vBox"]
+margin_top = 84.0
+margin_right = 512.0
+margin_bottom = 300.0
+size_flags_vertical = 3
+theme = ExtResource( 8 )
+
+[node name="HScrollBar" type="HScrollBar" parent="MainFrame/vBox/Body"]
+anchor_right = 1.0
+margin_left = 20.0
+margin_right = -10.0001
+margin_bottom = 12.0
+max_value = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VScrollBar" type="VScrollBar" parent="MainFrame/vBox/Body"]
+visible = false
+anchor_bottom = 1.0
+margin_top = 20.0
+margin_right = 12.0001
+margin_bottom = -10.0002
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[node name="Canvas" type="Control" parent="MainFrame/vBox/Body"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 22.0
+margin_top = 20.0
+margin_right = -22.0
+margin_bottom = -10.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+cell_size = Vector2( 50, 32 )
+
+[node name="CreateNewFDItem" type="PopupMenu" parent="."]
+margin_top = 40.0
+margin_right = 99.0
+margin_bottom = 92.0
+theme = ExtResource( 8 )
+items = [ "Crear Hitbox", null, 0, false, false, 0, 0, null, "", false, "Crear Cancel", null, 0, false, false, 1, 0, null, "", false ]
+
+[node name="ModifyFDItem" type="PopupMenu" parent="."]
+margin_top = 40.0
+margin_right = 99.0
+margin_bottom = 92.0
+theme = ExtResource( 8 )
+items = [ "Eliminar Item", null, 0, false, false, 0, 0, null, "", false ]
+
+[node name="AddPropertyDialog" type="AcceptDialog" parent="."]
+margin_right = 206.0
+margin_bottom = 116.0
+theme = ExtResource( 8 )
+window_title = "Add property"
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AddPropertyDialog"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 198.0
+margin_bottom = 72.0
+theme = ExtResource( 8 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AddPropertyEdit" type="LineEdit" parent="AddPropertyDialog/VBoxContainer"]
+margin_right = 190.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+theme = ExtResource( 8 )
+placeholder_text = "property name"
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="TypeMenuButton" type="MenuButton" parent="AddPropertyDialog/VBoxContainer"]
+margin_top = 36.0
+margin_right = 190.0
+margin_bottom = 64.0
+text = "Type"
+flat = false
+items = [ "Int", null, 0, false, false, 0, 0, null, "", false, "Float", null, 0, false, false, 1, 0, null, "", false, "String", null, 0, false, false, 2, 0, null, "", false ]
+switch_on_hover = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="value_changed" from="MainFrame/vBox/Topbar/FrameLengthSpinBox" to="." method="_on_TotalLengthSpinBox_value_changed"]
+[connection signal="toggled" from="MainFrame/vBox/FoldPropertiesButton" to="MainFrame/vBox/FoldPropertiesButton" method="_on_FoldPropertiesButton_toggled"]
+[connection signal="button_up" from="MainFrame/vBox/PropertiesContainer/PropertyButtonsContainer/AddNewPropertyButton" to="." method="_on_AddNewPropertyButton_button_up"]
+[connection signal="value_changed" from="MainFrame/vBox/Body/HScrollBar" to="." method="_on_HScrollBar_value_changed"]
+[connection signal="value_changed" from="MainFrame/vBox/Body/VScrollBar" to="." method="_on_VScrollBar_value_changed"]
+[connection signal="frame_data_selected" from="MainFrame/vBox/Body/Canvas" to="." method="_on_Canvas_frame_data_selected"]
+[connection signal="open_popup_menu" from="MainFrame/vBox/Body/Canvas" to="." method="_on_Canvas_open_popup_menu"]
+[connection signal="resized" from="MainFrame/vBox/Body/Canvas" to="MainFrame/vBox/Body/Canvas" method="_on_Canvas_resized"]
+[connection signal="id_pressed" from="CreateNewFDItem" to="." method="_on_CreateNewFDItem_id_pressed"]
+[connection signal="id_pressed" from="ModifyFDItem" to="." method="_on_ModifyFDItem_id_pressed"]
+[connection signal="about_to_show" from="AddPropertyDialog" to="AddPropertyDialog" method="_on_AddPropertyDialog_about_to_show"]
+[connection signal="confirmed" from="AddPropertyDialog" to="AddPropertyDialog" method="_on_AddPropertyDialog_confirmed"]
+[connection signal="modify_property" from="AddPropertyDialog" to="." method="_on_AddPropertyDialog_modify_property"]
+[connection signal="new_property" from="AddPropertyDialog" to="." method="_on_AddPropertyDialog_new_property"]

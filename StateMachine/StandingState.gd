@@ -1,48 +1,52 @@
-extends "res://StateMachine/NonBlockingState.gd"
+extends "res://stateMachine/NonBlockingState.gd"
 
 export(int) var speed: int = 78640
 
-func _first_time_loaded(_input: Dictionary):
-	._first_time_loaded(_input)
-	_on_player_preprocess(_input)
+func _first_time_loaded(_params: Dictionary):
+	._first_time_loaded(_params)
+	_on_player_preprocess(_params)
 
-func _on_player_preprocess(_input: Dictionary):
+func _on_player_preprocess(_params: Dictionary):
+	var _input = _params.get('input', {})
 	var x_direction:int  = _input.get(GlobalConstants.X_PLAYER_INPUT, 0)
 	if _input.get(GlobalConstants.ATTACK_PLAYER_INPUT, false):
-		owner.state_change("ATTACK_STATE", _input)
-	elif owner._get_command_result("BackDashCommand"):
-		owner.state_change("BACK_DASH_STATE", _input)
-	elif owner._get_command_result("ForwardDashCommand"):
-		owner.state_change("FORWARD_DASH_STATE", _input)
+		stateMachine.state_change("ATTACK_STATE", _params)
+	elif stateMachine._get_command_result("BackDashCommand"):
+		stateMachine.state_change("BACK_DASH_STATE", _params)
+	elif stateMachine._get_command_result("ForwardDashCommand"):
+		stateMachine.state_change("FORWARD_DASH_STATE", _params)
 	elif (check_if_inside_blocking(x_direction)):
-			owner.state_change("BLOCKING_STATE", _input)
+			stateMachine.state_change("BLOCKING_STATE", _params)
 	elif x_direction != 0:
-		owner.move_speed_body(x_direction * speed, 0)
+		stateMachine.move_speed_body(x_direction * speed, 0)
 
-func _on_hit(attack_data: AttackData):
-	var s_input = SyncManager.get_input_frame(SyncManager.current_tick).get_player_input(owner.get_network_master())
-	var input = s_input.get(str(owner.get_path()))
+func _on_hit(_params:Dictionary, _collision_data):
+	var input = _params.get("input",{})
 	
-	var facing = owner.forward
+	var facing = stateMachine.forward
 	var direction = 5 + input.get(GlobalConstants.X_PLAYER_INPUT, 0) + 3 * input.get(GlobalConstants.Y_PLAYER_INPUT, 0)
 	
-	if GlobalConstants.BLOCKING_DIR[facing][attack_data.level] == direction:
-		print(owner.name + " BLOCKED - Level " + str(attack_data.level))
+	
+#	if GlobalConstants.BLOCKING_DIR[facing][attack_data.level] == direction:
+	if direction % 3 == 0:
+		print(stateMachine.name + " BLOCKED - Level 'not yet'")
+		_params["on_block"] = _collision_data['ob']
+		stateMachine.state_change("BLOCKING_STATE", _params)
 	else:
-		print(owner.name + "HURT - Level " + str(attack_data.level))
-		._on_hit(attack_data)
+		print(stateMachine.name + "HURT - Level 'not yet'")
+		._on_hit(_params, _collision_data)
 
 func check_if_inside_blocking(x_direction: int) -> bool:
 	if x_direction == 0:
 		return false
-	if x_direction == -1 and owner.forward == GlobalConstants.DIRECTION.LEFT:
+	if x_direction == -1 and stateMachine.forward == GlobalConstants.DIRECTION.LEFT:
 		return false
-	if x_direction == 1 and owner.forward == GlobalConstants.DIRECTION.RIGHT:
+	if x_direction == 1 and stateMachine.forward == GlobalConstants.DIRECTION.RIGHT:
 		return false
 	
 	var danger_boxes = get_tree().get_nodes_in_group("dangerbox")
 	for d_box in danger_boxes:
-		if d_box._is_inside(owner):
+		if d_box._is_inside(stateMachine):
 			print("is inside")
 			return true
 			

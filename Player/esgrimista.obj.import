@@ -2,14 +2,14 @@
 
 importer="wavefront_obj"
 type="Mesh"
-path="res://.import/esgrimista.obj-916e761bbc8deaab80e88ab8115932e3.mesh"
+path="res://.import/esgrimista.obj-9ca3400ab16286e4ee9f004068912cb1.mesh"
 
 [deps]
 
-files=[ "res://.import/esgrimista.obj-916e761bbc8deaab80e88ab8115932e3.mesh" ]
+files=[ "res://.import/esgrimista.obj-9ca3400ab16286e4ee9f004068912cb1.mesh" ]
 
-source_file="res://Player/esgrimista.obj"
-dest_files=[ "res://.import/esgrimista.obj-916e761bbc8deaab80e88ab8115932e3.mesh", "res://.import/esgrimista.obj-916e761bbc8deaab80e88ab8115932e3.mesh" ]
+source_file="res://player/esgrimista.obj"
+dest_files=[ "res://.import/esgrimista.obj-9ca3400ab16286e4ee9f004068912cb1.mesh", "res://.import/esgrimista.obj-9ca3400ab16286e4ee9f004068912cb1.mesh" ]
 
 [params]
 

@@ -2,12 +2,12 @@
 
 importer="scene"
 type="PackedScene"
-path="res://.import/esgrimista.glb-a9f7c1222dae49076da77a55ebd0dd81.scn"
+path="res://.import/esgrimista.glb-613b54f61e84a89b7084162e7300e11b.scn"
 
 [deps]
 
-source_file="res://Player/esgrimista.glb"
-dest_files=[ "res://.import/esgrimista.glb-a9f7c1222dae49076da77a55ebd0dd81.scn" ]
+source_file="res://player/esgrimista.glb"
+dest_files=[ "res://.import/esgrimista.glb-613b54f61e84a89b7084162e7300e11b.scn" ]
 
 [params]
 

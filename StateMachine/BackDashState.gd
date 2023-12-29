@@ -1,4 +1,4 @@
-extends "res://StateMachine/NonBlockingState.gd"
+extends "res://stateMachine/NonBlockingState.gd"
 
 const TICKS_MAX:int = 35
 const TICKS_MOVEMENT:int = 20
@@ -13,23 +13,24 @@ func _save_state() -> Dictionary:
 		"current_tick": current_tick,
 	}
 
-func _first_time_loaded(_input: Dictionary):
-	._first_time_loaded(_input)
+func _first_time_loaded(_params: Dictionary):
+	._first_time_loaded(_params)
 	current_tick = 0
-	_on_player_preprocess(_input)
+	_on_player_preprocess(_params)
 
-func _on_player_preprocess(_input: Dictionary):
+func _on_player_preprocess(_params: Dictionary):
+	._on_player_preprocess(_params)
 	if current_tick == TICKS_MAX:
-		owner.state_change("STANDING_STATE", _input)
+		stateMachine.state_change("STANDING_STATE", _params)
 		return
 	elif current_tick < TICKS_MAX:
 		current_tick += 1
 		
 	if current_tick <=  TICKS_MOVEMENT:
 		var speed
-		if owner.forward == GlobalConstants.DIRECTION.RIGHT:
+		if stateMachine.forward == GlobalConstants.DIRECTION.RIGHT:
 				speed = -BACK_SPEED
 		else:
 				speed = BACK_SPEED
 		
-		owner.move_speed_body(speed, 0)
+		stateMachine.move_speed_body(speed, 0)

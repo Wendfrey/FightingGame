@@ -1,24 +1,24 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://Boxes/DangerBox.gd" type="Script" id=1]
-[ext_resource path="res://Boxes/box_graph.png" type="Texture" id=2]
-[ext_resource path="res://CustomNetworkNodes/PreprocessNetworkTimer.gd" type="Script" id=3]
+[ext_resource path="res://customNetworkNodes/PreprocessNetworkTimer.gd" type="Script" id=1]
+[ext_resource path="res://boxes/DangerBox.gd" type="Script" id=2]
+[ext_resource path="res://boxes/box_graph.png" type="Texture" id=3]
 
 [sub_resource type="SGRectangleShape2D" id=1]
 
 [node name="DangerBox" type="SGArea2D" groups=["dangerbox"]]
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 
 [node name="DangerBoxShape" type="SGCollisionShape2D" parent="."]
 shape = SubResource( 1 )
 
 [node name="DangerBoxDespawn" type="Node" parent="."]
-script = ExtResource( 3 )
+script = ExtResource( 1 )
 
 [node name="Unlinker" type="Node" parent="."]
 
 [node name="DangerBoxVisual" type="NinePatchRect" parent="Unlinker"]
-texture = ExtResource( 2 )
+texture = ExtResource( 3 )
 region_rect = Rect2( 1, 1, 13, 13 )
 __meta__ = {
 "_edit_use_anchors_": false

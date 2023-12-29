@@ -17,12 +17,32 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "BaseCommand",
 "language": "GDScript",
-"path": "res://Commands/BaseCommand.gd"
+"path": "res://commands/BaseCommand.gd"
+}, {
+"base": "SGKinematicBody2D",
+"class": "CharacterStateMachine",
+"language": "GDScript",
+"path": "res://player/CharacterStateMachine.gd"
 }, {
 "base": "Node",
 "class": "EmptyState",
 "language": "GDScript",
-"path": "res://StateMachine/EmptyState.gd"
+"path": "res://stateMachine/EmptyState.gd"
+}, {
+"base": "Object",
+"class": "FrameDataItem",
+"language": "GDScript",
+"path": "res://addons/fight_data_creator/src/data/FrameDataItem.gd"
+}, {
+"base": "Control",
+"class": "FrameEditorBase",
+"language": "GDScript",
+"path": "res://addons/fight_data_creator/scenes/frameeditors/FrameEditorBase.gd"
+}, {
+"base": "FrameDataItem",
+"class": "HitboxFrameDataItem",
+"language": "GDScript",
+"path": "res://addons/fight_data_creator/src/data/HitboxFrameDataItem.gd"
 }, {
 "base": "AnimationPlayer",
 "class": "NetworkAnimationPlayer",
@@ -38,20 +58,30 @@ _global_script_classes=[ {
 "class": "NetworkTimer",
 "language": "GDScript",
 "path": "res://addons/godot-rollback-netcode/NetworkTimer.gd"
+}, {
+"base": "Resource",
+"class": "PlayerResource",
+"language": "GDScript",
+"path": "res://addons/fight_data_creator/PlayerResource.gd"
 } ]
 _global_script_class_icons={
 "AttackData": "",
 "BaseCommand": "",
+"CharacterStateMachine": "",
 "EmptyState": "",
+"FrameDataItem": "",
+"FrameEditorBase": "",
+"HitboxFrameDataItem": "",
 "NetworkAnimationPlayer": "",
 "NetworkRandomNumberGenerator": "",
-"NetworkTimer": ""
+"NetworkTimer": "",
+"PlayerResource": ""
 }
 
 [application]
 
 config/name="Fighting Game"
-run/main_scene="res://MainMenu/MainMenu.tscn"
+run/main_scene="res://mainMenu/MainMenu.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -59,6 +89,7 @@ config/icon="res://icon.png"
 SyncManager="*res://addons/godot-rollback-netcode/SyncManager.gd"
 SyncDebugger="*res://addons/godot-rollback-netcode/SyncDebugger.gd"
 GlobalConstants="*res://GlobalConstants.gd"
+FrameDataUtilities="*res://FrameDataUtilities.gd"
 
 [display]
 
@@ -67,7 +98,7 @@ window/stretch/aspect="keep"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/godot-rollback-netcode/plugin.cfg" )
+enabled=PoolStringArray( "res://addons/fight_data_creator/plugin.cfg", "res://addons/godot-rollback-netcode/plugin.cfg" )
 
 [input]
 
@@ -138,10 +169,8 @@ player_2_attack={
 
 [network]
 
-rollback/classes/message_serializer="res://CustomNetworkNodes/CustomMessageSerializer.gd"
-rollback/classes/hash_serializer="res://CustomNetworkNodes/CustomHashSerializer.gd"
-rollback/debug/rollback_ticks=5
-rollback/debug/random_rollback_ticks=7
+rollback/classes/message_serializer="res://customNetworkNodes/CustomMessageSerializer.gd"
+rollback/classes/hash_serializer="res://customNetworkNodes/CustomHashSerializer.gd"
 
 [physics]
 

@@ -1,0 +1,150 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://addons/fight_data_creator/inspector/box_editor/BoxEditorDialog.gd" type="Script" id=1]
+[ext_resource path="res://icon.png" type="Texture" id=2]
+
+[node name="BoxEditorItem" type="AcceptDialog"]
+visible = true
+margin_right = 697.0
+margin_bottom = 235.0
+window_title = "Box Editor"
+script = ExtResource( 1 )
+editLineNamePath = NodePath("MarginContainer/HBoxContainer/BoxEditorData/NameContainer/NameLineEdit")
+editLinePositionXPath = NodePath("MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditOriginX")
+editLinePositionYPath = NodePath("MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditOriginY")
+editLineSizeXPath = NodePath("MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditSizeX")
+editLineSizeYPath = NodePath("MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditSizeY")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -36.0
+custom_constants/margin_right = 5
+custom_constants/margin_top = 5
+custom_constants/margin_left = 5
+custom_constants/margin_bottom = 5
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 676.0
+margin_bottom = 186.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BoxEditorData" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+margin_right = 333.0
+margin_bottom = 181.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[node name="NameContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/BoxEditorData"]
+margin_right = 333.0
+margin_bottom = 24.0
+
+[node name="NameLabel" type="Label" parent="MarginContainer/HBoxContainer/BoxEditorData/NameContainer"]
+margin_top = 5.0
+margin_right = 46.0
+margin_bottom = 19.0
+text = "Name: "
+
+[node name="NameLineEdit" type="LineEdit" parent="MarginContainer/HBoxContainer/BoxEditorData/NameContainer"]
+margin_left = 50.0
+margin_right = 108.0
+margin_bottom = 24.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/BoxEditorData"]
+margin_top = 28.0
+margin_right = 333.0
+margin_bottom = 42.0
+text = "Rect2:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer/BoxEditorData"]
+margin_top = 46.0
+margin_right = 333.0
+margin_bottom = 70.0
+
+[node name="LineEditOriginX" type="LineEdit" parent="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer"]
+margin_right = 58.0
+margin_bottom = 24.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="LineEditOriginY" type="LineEdit" parent="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer"]
+margin_left = 62.0
+margin_right = 120.0
+margin_bottom = 24.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="LineEditSizeX" type="LineEdit" parent="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer"]
+margin_left = 124.0
+margin_right = 182.0
+margin_bottom = 24.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="LineEditSizeY" type="LineEdit" parent="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer"]
+margin_left = 186.0
+margin_right = 244.0
+margin_bottom = 24.0
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="BoxRenderer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+margin_left = 337.0
+margin_right = 671.0
+margin_bottom = 181.0
+size_flags_horizontal = 3
+
+[node name="Panel" type="PanelContainer" parent="MarginContainer/HBoxContainer/BoxRenderer"]
+margin_right = 334.0
+margin_bottom = 114.0
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/HBoxContainer/BoxRenderer/Panel"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 327.0
+margin_bottom = 107.0
+
+[node name="Control" type="Control" parent="MarginContainer/HBoxContainer/BoxRenderer/Panel/MarginContainer"]
+margin_right = 320.0
+margin_bottom = 100.0
+rect_min_size = Vector2( 100, 100 )
+rect_clip_content = true
+
+[node name="SpriteImage" type="TextureRect" parent="MarginContainer/HBoxContainer/BoxRenderer/Panel/MarginContainer/Control"]
+visible = false
+anchor_right = 0.2
+anchor_bottom = 0.64
+texture = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[node name="HitboxImage" type="ColorRect" parent="MarginContainer/HBoxContainer/BoxRenderer/Panel/MarginContainer/Control"]
+visible = false
+anchor_right = 0.125
+anchor_bottom = 0.4
+color = Color( 0.121569, 0.0156863, 0.152941, 0.643137 )
+__meta__ = {
+"_edit_use_anchors_": true
+}
+
+[connection signal="about_to_show" from="." to="." method="_on_BoxEditorItem_about_to_show"]
+[connection signal="confirmed" from="." to="." method="_on_BoxEditorItem_confirmed"]
+[connection signal="text_changed" from="MarginContainer/HBoxContainer/BoxEditorData/NameContainer/NameLineEdit" to="." method="_on_NameLineEdit_text_changed"]
+[connection signal="text_changed" from="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditOriginX" to="." method="_on_LineEditOriginX_text_changed"]
+[connection signal="text_changed" from="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditOriginY" to="." method="_on_LineEditOriginY_text_changed"]
+[connection signal="text_changed" from="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditSizeX" to="." method="_on_LineEditSizeX_text_changed"]
+[connection signal="text_changed" from="MarginContainer/HBoxContainer/BoxEditorData/HBoxContainer/LineEditSizeY" to="." method="_on_LineEditSizeY_text_changed"]

@@ -1,7 +1,7 @@
-extends "res://Commands/BaseCommand.gd"
+extends BaseCommand
 
 const MOTION = {
-	0: [4, 5, 4], #Right facing -> · ->
+	0: [4, 5, 4], #Right facing <- · <-
 	1: [6, 5, 6]  #Left facing
 }
 #Leniency doesn't make sense for first input
@@ -9,65 +9,97 @@ const LENIENT = {
 	0: [[],[],[]],
 	1: [[],[],[]]
 }
+const max_ticks = 7
 
 var result_buffer: int = 0
+var motion_array:Array = []
+var tick:int = 0
 
 func _load_state(_input: Dictionary):
 	result_buffer = _input.get("result_buffer", 0)
+	motion_array = _input.get("motion_array", [])
+	tick = _input.get("tick", 0)
 	
 func _save_state() -> Dictionary:
 	return {
-		"result_buffer": result_buffer
+		"result_buffer": result_buffer,
+		"motion_array": motion_array.duplicate(true),
+		"tick": tick
 	}
 
-func _player_preprocess(_input: PoolByteArray, facing: int):
+func _player_preprocess(_bit_input: int, facing: int):
 	
 #	If the buffer is still active do not check
 	if result_buffer > 0:
 		result_buffer -= 1
-		if result_buffer > 0:
-			return
 
 	var _motion: int
-	var motion_index: int = 0
-	var desired_motion:Array = MOTION[facing].duplicate()
-	var len_motion_list:Array = LENIENT[facing].duplicate()
 	
-	desired_motion.invert()
-	len_motion_list.invert()
+	_motion = 5
+	if _bit_input & 0b0001:
+		_motion += 1
+	if _bit_input & 0b0010:
+		_motion -= 1
+	if _bit_input & 0b0100:
+		_motion += 3
+	if _bit_input & 0b1000:
+		_motion -= 3
+
+	if motion_array.empty() or motion_array[-1]["motion"] != _motion:
+		if not motion_array.empty():
+			motion_array[-1]["last_tick"] = tick
+		motion_array.append({"motion": _motion})
 	
-	for data in _input:
-		_motion = 5
-		if data & 0b0001:
-			_motion += 1
-		if data & 0b0010:
-			_motion -= 1
-		if data & 0b0100:
-			_motion += 3
-		if data & 0b1000:
-			_motion -= 3
+	if (motion_array.size() > 1):
+		tick += 1
 		
-		if _motion == desired_motion[motion_index]:
-			motion_index += 1
-			if motion_index == desired_motion.size():
+	find_valid_first_step(facing)
+
+func find_valid_first_step(facing:int):
+	for index in range(motion_array.size()):
+		if motion_array[0]["motion"] != MOTION[facing][0] or tick > max_ticks:
+			var erased_motion = motion_array[0]
+			motion_array.remove(0)
+			reload_last_ticks()
+			continue
+		#If motions are valid then we do not need to keep checking
+		match (_valid_motion(facing)):
+			0:
+				break
+			2:
 				result_buffer = GlobalConstants.MAX_RESULT_BUFFER
-				return
-		else:
-			var is_lenient: bool = false
-			if motion_index > 0 and _motion == desired_motion[motion_index-1]:
-				continue
-			var lenient_data:Array = len_motion_list[motion_index]
-			for len_motion in lenient_data:
-				if len_motion == _motion:
-					is_lenient = true
-					break
-			if not is_lenient:
-				return
+				motion_array.remove(0)
+				reload_last_ticks()
+				break
+# returns if the motion is valid:
+#	0 -> not valid, 1 -> valid but incomplete, 2 -> valid and complete
+func _valid_motion(facing:int) -> int:
+	var step: int = 0
 	
-		
+	for motion_dict in motion_array:
+		var _motion = motion_dict["motion"]
+		if MOTION[facing][step] == _motion:
+			step += 1
+			if MOTION[facing].size() <= step:
+				# COMPLETED INPUT
+				return 2
+		elif not LENIENT[facing][step].has(_motion):
+			return 0
+	# if we ended motion array but we found valid inputs then it still valid 
+	# but not completed input
+	return 1
+
+func reload_last_ticks():
+	if motion_array.size() <= 1:
+		tick = 0
+	else:
+		var new_tick = motion_array[0]["last_tick"]
+		tick -= new_tick
+		for index in range(motion_array.size() - 1):
+			motion_array[index]["last_tick"] = motion_array[index]["last_tick"] - new_tick
 
 func _is_input_command_valid() -> bool:
 	return result_buffer > 0
-	
+
 func get_key() -> String:
 	return "BackDashCommand"

@@ -1,0 +1,85 @@
+{
+  "charname": "name_1",
+  "health": 100,
+  "forward_dash": {
+    "distance": "60",
+    "active": 20,
+    "recovery_frames": 10
+  },
+  "backward_dash": {
+    "distance": "45",
+    "active": 20,
+    "recovery_frames": 10
+  },
+  "attacks": {
+    "basic_attack": {
+      "properties": {
+        "whiffed": false
+      },
+      "duration": 40,
+      "frames": {
+        "10": {
+          "hitbox": {
+            "level": "HIGH",
+            "rect": {
+              "o_x": "20",
+              "o_y": "0",
+              "s_x": "50",
+              "s_y": "25"
+            },
+            "active": 5,
+            "oh": {
+              "hitstun": 20,
+              "knockback": "1",
+              "damage": 10
+            },
+            "ob": {
+              "hitstun": 8,
+              "knockback": "1"
+            },
+            "ow": {
+              "set": {
+                "whiffed": true
+              }
+            }
+          }
+        },
+        "16": {
+          "cancel": [
+              {
+                "into": "forward_dash",
+                "active": 30,
+                "input": "ForwardDashCommand",
+                "if": {
+                  "whiffed": false
+                }
+              },
+              {
+                "into": "backward_dash",
+                "active": 30,
+                "input": "BackDashCommand",
+                "if": {
+                  "whiffed": false
+                }
+              },
+            ]
+        },
+        "30": {
+          "force_exit": {
+            "if": {
+              "whiffed": false
+            }
+          }
+        }
+      }
+    }
+  },
+  "motions": {
+    "qcf_lp": {
+      "motion": [2, 3, 6],
+      "lenient": [[],[2,3,5],[]],
+      "button": "lp",
+      "max_ticks": 10
+    }
+  }
+}

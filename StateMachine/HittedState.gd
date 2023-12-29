@@ -1,28 +1,25 @@
-extends "res://StateMachine/NonBlockingState.gd"
+extends "res://stateMachine/NonBlockingState.gd"
 
-var on_hit_knockback:PoolIntArray
+var on_hit_knockback:int
 var ticks_counter: int
 var max_ticks:int
 var direction: int
 
-func _first_time_loaded(_input: Dictionary):
-	on_hit_knockback = _input.get("on_hit_knockback", PoolIntArray())
+func _first_time_loaded(_params: Dictionary):
+	var oh_data = _params["oh_data"]
+	on_hit_knockback = oh_data.get("knockback", PoolIntArray())
 	ticks_counter = 0
-	max_ticks = _input.get("on_hit_frames", 0)
-	direction = -1 if owner.forward == GlobalConstants.DIRECTION.RIGHT else 1
+	max_ticks = oh_data.get("hitstun", 0)
+	direction = -1 if stateMachine.forward == GlobalConstants.DIRECTION.RIGHT else 1
 	
-	#clear _input from custom keys
-	_input.erase('on_hit_knockback')
-	_input.erase('on_hit_frames')
-	_input.erase('stun_increase')
-	
-	._on_player_preprocess(_input)
+	# Do a tick
+	_on_player_preprocess(_params)
 
-func _load_state(_input: Dictionary):
-	on_hit_knockback = _input['on_hit_knockback']
-	ticks_counter = _input['ticks_counter']
-	max_ticks = _input['max_ticks']
-	direction = _input['direction']
+func _load_state(_state: Dictionary):
+	on_hit_knockback = _state['on_hit_knockback']
+	ticks_counter = _state['ticks_counter']
+	max_ticks = _state['max_ticks']
+	direction = _state['direction']
 	
 func _save_state() -> Dictionary:
 	return {
@@ -31,21 +28,15 @@ func _save_state() -> Dictionary:
 		'max_ticks': max_ticks,
 		'direction': direction
 	}
-	
-func _on_player_preprocess(_input: Dictionary):
+
+func _on_player_preprocess(_params: Dictionary):
+	._on_player_preprocess(_params)
 	if (ticks_counter == max_ticks):
-		owner.state_change('STANDING_STATE', _input)
+		stateMachine.state_change('STANDING_STATE', _params)
 		return
 		
-	if(on_hit_knockback.size() > ticks_counter):
-		owner.move_speed_body(on_hit_knockback[ticks_counter] * direction, 0)
+	if(on_hit_knockback != 0):
+		stateMachine.move_speed_body(on_hit_knockback * direction, 0)
 	
 	ticks_counter += 1
-	
-func _on_hit(attack_data:AttackData):
-	var _input = SyncManager.get_input_frame(SyncManager.current_tick).get_player_input(owner.get_network_master()).get(str(owner.get_path()))
-	
-	_input['on_hit_knockback'] = attack_data.knockback
-	_input['on_hit_frames'] = attack_data.on_hit_frames
-	_input['stun_increase'] = attack_data.stun_increase
-	_first_time_loaded(_input)
+	._on_player_preprocess(_params)

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[ext_resource path="res://addons/fight_data_creator/PlayerResource.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+hitboxes = [ Object(Reference,"script":null,"rect":Object(Reference,"script":null,"ox":"0","oy":"15","sx":"151","sy":"12")
+,"name":"asdf")
+ ]
+hurtboxes = [  ]
+health = 0
+forward_walk_speed = 0
+backward_walk_speed = 0

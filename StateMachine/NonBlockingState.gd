@@ -1,17 +1,28 @@
-extends "res://StateMachine/EmptyState.gd"
+extends "res://stateMachine/EmptyState.gd"
 
-enum CollisionFlags{
-	NO_COLLISION,
-	BLOCKING_COLLISION,
-	ATTACK_COLLISION
-}
+const hitboxRes = preload("res://boxes/Hitbox.gd")
 
-func get_has_collision() -> int:#
-	return CollisionFlags.NO_COLLISION
+func _first_time_loaded(_params: Dictionary):
+	._first_time_loaded(_params)
 
-func _on_hit(attack_data: AttackData):
-	var _input = SyncManager.get_input_frame(SyncManager.current_tick).get_player_input(owner.get_network_master()).get(str(owner.get_path())).duplicate(true)
-	_input['on_hit_frames'] = attack_data.on_hit_frames
-	_input['on_hit_knockback'] = attack_data.knockback
-	_input['stun_increase'] = attack_data.stun_increase
-	owner.state_change("HITTED_STATE", _input)
+func _on_player_postprocess(_params):
+	var collision_data = _check_player_hitted()
+	if collision_data:
+		_on_hit(_params, collision_data)
+
+func _on_hit(_params:Dictionary, _collision_data:Dictionary):
+	_params["oh_data"] = _collision_data["oh"]
+	stateMachine.state_change("HITTED_STATE", _params)
+
+func _check_player_hitted() -> Dictionary:
+	var result = null
+	var enemy_pl = str(stateMachine.get_enemy_player_type())
+	var hitboxes = stateMachine.hurtboxArea.get_overlapping_areas()
+	for box in hitboxes:
+		if not box is hitboxRes:
+			continue
+		var hitbox = box as hitboxRes
+		if not hitbox.collided:
+			hitbox.collided = true
+			result =  hitbox.get_hitbox_data()
+	return result
